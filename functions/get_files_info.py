@@ -15,13 +15,12 @@ def get_files_info(working_directory, directory="."):
     try:
         files_info = []
         files = os.listdir(target_dir)
-        print(files)
         for file in files:
             file_path = os.path.join(target_dir, file)
             file_size = os.path.getsize(file_path)
             is_dir = os.path.isdir(file_path)
 
             files_info.append(f" - {file}: file_size={file_size} bytes, is_dir={is_dir}")
-        return "\n".join(files_info)
+            return "\n".join(files_info)
     except Exception as e:
         return f"Error listing files: {e}"
