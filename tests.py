@@ -1,6 +1,7 @@
 from functions.get_files_info import get_files_info
 from functions.get_file_content import get_file_content
 from functions.write_file import write_file
+from functions.run_python_file import run_python_file
 
 def test_get_files_info():
     result = get_files_info("calculator", ".")
@@ -57,8 +58,29 @@ def test_write_file():
     print("\nContents of calculator/tmp/temp.txt:")
     print(result)
 
+def test_run_python_file():
+    result = run_python_file("calculator", "main.py")
+    print("\nResults of calculator/main.py:")
+    print(result)
+
+    result = run_python_file("calculator", "main.py", ["3 + 5"])
+    print("\nResults of calculator/main.py:")
+    print(result)
+
+    result = run_python_file("calculator", "tests.py")
+    print("\nResults of calculator/tests.py:")
+    print(result)
+
+    result = run_python_file("calculator", "../main.py")
+    print("\nResults of calculator/../main.py")
+    print(result)
+
+    result = run_python_file("calculator", "nonexistent.py")
+    print("\nResults of calculator/nonexistent.py")
+    print(result)
 
 if __name__ == "__main__":
     # test_get_files_info()
     # test_get_file_content()
-    test_write_file()
+    # test_write_file()
+    test_run_python_file()
