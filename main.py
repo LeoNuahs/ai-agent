@@ -5,6 +5,10 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
+from functions.get_files_info import schema_get_files_info
+from prompts import system_prompt
+from call_function import available_functions
+
 def main():
     _ = load_dotenv()
     verbose = "--verbose" in sys.argv
@@ -31,20 +35,27 @@ def main():
             types.Content(role="user", parts=[types.Part(text=user_prompt)]), 
     ]
 
-    generate_content(client, messages, verbose)
+    generate_content(client, messages, verbose, system_prompt)
 
-def generate_content(client, messages, verbose):
+def generate_content(client, messages, verbose, system_prompt):
     response = client.models.generate_content(
         model="gemini-2.0-flash-001", 
-        contents=messages
+        contents=messages, 
+        config=types.GenerateContentConfig(
+            tools=[available_functions], 
+            system_instruction=system_prompt, 
+        ),
     )
 
     if verbose:
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
 
-    print("Response")
-    print(response.text)
+    if response.function_calls:
+        for call in response.function_calls:
+            print(f"Calling function: {call.name} {call.args}")
+
+    return response.text
 
 if __name__ == "__main__":
     main()
