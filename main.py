@@ -51,11 +51,12 @@ def generate_content(client, messages, verbose, system_prompt):
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
 
+    if not response.function_calls:
+        return response.text
+
     if response.function_calls:
         for call in response.function_calls:
-            print(f"Calling function: {call.name} {call.args}")
-
-    return response.text
+            print(f"Calling function: {call.name}({call.args})")
 
 if __name__ == "__main__":
     main()
