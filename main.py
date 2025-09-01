@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from functions.get_files_info import schema_get_files_info
 from prompts import system_prompt
 from call_function import available_functions, call_function
 
@@ -47,23 +46,34 @@ def generate_content(client, messages, verbose, system_prompt):
         ),
     )
 
+    if verbose:
+        print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
+        print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+
     if not response.function_calls:
         return response.text
 
     output = []
+    # for call in response.function_calls:
+    #     output.append(call_function(call, verbose))
+    #
+    # for call_output in output:
+    #     if not call_output.parts[0].function_response.response:
+    #         raise Exception("No response found! Exiting...")
+
     for call in response.function_calls:
-        output.append(call_function(call, verbose))
+        function_output = call_function(call, verbose)
 
-    for call_output in output:
-        if not call_output.parts[0].function_response.response:
-            print("No response found! Exiting...")
-            raise Exception("No response found! Exiting...")
+        if (not function_output.parts or not function_output.parts[0].function_response.response):
+            raise Exception("empty function call result")
 
-    if verbose:
-        print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
-        print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
-        for call_output in output:
-            print(f"-> {call_output.parts[0].function_response.response}")
+        if verbose:
+            print(f"-> {function_output.parts[0].function_response.response}")
+
+        output.append(function_output)
+
+    if not output:
+        raise Exception("no function responses generated, exiting.")
 
 if __name__ == "__main__":
     main()
