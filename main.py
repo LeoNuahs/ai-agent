@@ -7,7 +7,7 @@ from google.genai import types
 
 from functions.get_files_info import schema_get_files_info
 from prompts import system_prompt
-from call_function import available_functions
+from call_function import available_functions, call_function
 
 def main():
     _ = load_dotenv()
@@ -47,16 +47,23 @@ def generate_content(client, messages, verbose, system_prompt):
         ),
     )
 
-    if verbose:
-        print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
-        print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
-
     if not response.function_calls:
         return response.text
 
-    if response.function_calls:
-        for call in response.function_calls:
-            print(f"Calling function: {call.name}({call.args})")
+    output = []
+    for call in response.function_calls:
+        output.append(call_function(call, verbose))
+
+    for call_output in output:
+        if not call_output.parts[0].function_response.response:
+            print("No response found! Exiting...")
+            raise Exception("No response found! Exiting...")
+
+    if verbose:
+        print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
+        print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+        for call_output in output:
+            print(f"-> {call_output.parts[0].function_response.response}")
 
 if __name__ == "__main__":
     main()

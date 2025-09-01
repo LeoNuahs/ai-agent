@@ -32,18 +32,20 @@ def run_python_file(working_directory, file_path, args=[]):
 
         output = []
 
-        if completed_process.returncode != 0:
-            return f"Process exited with code \"{completed_process.returncode}\""
-
-        if not completed_process.stdout:
-            return "No output produced."
-        else:
+        if completed_process.stdout:
             output.append(f"STDOUT: \n{completed_process.stdout}")
 
         if completed_process.stderr:
             output.append(f"STDERR: \n{completed_process.stderr}")
 
-        return output
+        if completed_process.returncode != 0:
+            output.append(f"Process exited with code \"{completed_process.returncode}\"")
+
+        if output:
+            return "\n".join(output)
+        else:
+            return "No output produced."
+
     except Exception as e:
         return f"Error: executing Python file: \"{e}\""
 

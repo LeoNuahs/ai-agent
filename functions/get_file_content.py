@@ -1,6 +1,7 @@
 import os
-from config import MAX_CHARS
 from google.genai import types
+
+from config import MAX_CHARS
 
 def get_file_content(working_directory, file_path):
     permitted_dir = os.path.abspath(working_directory)
