@@ -8,7 +8,7 @@ from config import WORKING_DIR
 
 def call_function(call, verbose=False):
     function_name = call.name
-    function_args = call.args
+    function_args = dict(call.args)
 
     if verbose:
         print(f"Calling function: {function_name}({function_args})")
